@@ -1,0 +1,7 @@
+{
+  "basic": [ "div", "span", "p", "a", "*" ],
+  "combinators": [ " ", ">", "+", "~" ],
+  "attribute": [ "[type]", "[href^='https']", "[data-*]" ],
+  "pseudo_classes": [ ":hover", ":focus", ":nth-child(n)" ],
+  "pseudo_elements": [ "::before", "::after", "::first-letter" ]
+}

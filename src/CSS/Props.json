@@ -1,0 +1,47 @@
+{
+  "properties": [
+    "color",
+    "font-size",
+    "line-height",
+    "text-align",
+    "margin",
+    "margin-left",
+    "margin-right",
+    "margin-bottom",
+    "padding",
+    "padding-left",
+    "padding-right",
+    "padding-bottom",
+    "border",
+    "width",
+    "height",
+    "display",
+    "flex",
+    "justify-content",
+    "align-items",
+    "grid-template-columns",
+    "grid-area",
+    "gap",
+    "background-color",
+    "background-image",
+    "background-size",
+    "position",
+    "left",
+    "right",
+    "up",
+    "down"
+  ],
+  "at-rules": [
+    "@import",
+    "@media",
+    "@font-face",
+    "@keyframes",
+    "@supports",
+    "@layer",
+    "@namespace",
+    "@page",
+    "@charset",
+    "@scope"
+  ]
+}
+
