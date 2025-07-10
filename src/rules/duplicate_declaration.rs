@@ -1,17 +1,16 @@
-
-use std::collections::{HashMap, HashSet};
-use crate::error::{PrettystrictError};
-use crate::lint_rules::LintError;
-use crate::Rules::check_value::ValueList;
 use super::check_property::Rule;
+use crate::error::PrettystrictError;
+use crate::lint_rules::LintError;
+use crate::rules::check_value::ValueList;
+use std::collections::{HashMap, HashSet};
 
 pub struct Location {
     pub(crate) line: usize,
     pub(crate) column: usize,
 }
-pub fn duplicate_declaration(rule: &Rule, location: &Location) -> Vec<LintError> {
+pub fn duplicate_declaration(rule: &Rule, _location: &Location) -> Vec<LintError> {
     let mut errors = Vec::new();
-    let mut seen:HashSet<&str> = HashSet::new();
+    let mut seen: HashSet<&str> = HashSet::new();
     for declaration in &rule.declaration {
         if !seen.insert(declaration.name.as_str()) {
             errors.push(LintError {
@@ -20,7 +19,7 @@ pub fn duplicate_declaration(rule: &Rule, location: &Location) -> Vec<LintError>
                 message: "<- duplicate property found.".to_string(),
                 kind: PrettystrictError::DuplicateProperty,
             });
-        };
+        }
     }
     errors
 }
@@ -42,7 +41,10 @@ pub fn shorthand_detection(rule: &Rule, known_values: &ValueList) -> Vec<LintErr
                 errors.push(LintError {
                     selector: rule.selector.clone(),
                     property: decl.name.clone(),
-                    message: format!("‘{}’ overrides previously defined shorthand ‘{}’", prop, shorthand),
+                    message: format!(
+                        "'{}' overrides previously defined shorthand '{}'",
+                        prop, shorthand
+                    ),
                     kind: PrettystrictError::ProperyOverride,
                 });
             }
@@ -53,7 +55,10 @@ pub fn shorthand_detection(rule: &Rule, known_values: &ValueList) -> Vec<LintErr
                         errors.push(LintError {
                             selector: rule.selector.clone(),
                             property: decl.name.clone(),
-                            message: format!("‘{}’ overrides previously defined longhand ‘{}’", shorthand, longhand),
+                            message: format!(
+                                "'{}' overrides previously defined longhand '{}'",
+                                shorthand, longhand
+                            ),
                             kind: PrettystrictError::ProperyOverride,
                         });
                     }
@@ -73,12 +78,14 @@ pub fn check_order(rule: &Rule) -> Vec<LintError> {
         "display",
         "position",
         "top",
-        "right", "bottom",  "left",
+        "right",
+        "bottom",
+        "left",
         "z-index",
         "color",
         "background",
     ];
-    
+
     let order_map: HashMap<&str, usize> = prefered_order
         .iter()
         .enumerate()

@@ -1,22 +1,21 @@
-
-
 mod check_file;
 mod error;
-mod Rules;
 mod lint_rules;
-mod ParseCss;
+mod parse_css;
+mod rules;
 
+use crate::lint_rules::{LintError, lint_rules};
+use crate::parse_css::parse_css;
+use crate::rules::check_property::load_known_props;
+use crate::rules::check_value::load_known_values;
+use crate::rules::duplicate_declaration::Location;
 use clap::{Parser, Subcommand};
-use crate::Rules::check_property::{load_known_props, Property, Rule};
-use crate::lint_rules::{lint_rules, LintError};
-use crate::Rules::check_value::{load_known_values};
-use crate::Rules::duplicate_declaration::Location;
 
 #[derive(Parser, Debug)]
-#[command(name =  "prettystrict")]
+#[command(name = "prettystrict")]
 struct Cli {
     #[command(subcommand)]
-   command: Commands,
+    command: Commands,
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -33,33 +32,21 @@ fn main() -> Result<(), LintError> {
     let known_props = load_known_props("./src/CSS/Props.json")?;
     let known_values = load_known_values("./src/CSS/Values.json")?;
 
-    let test_rule = Rule {
-        selector: ".my-class".to_string(),
-        declaration: vec![
-            Property {
-                name: "color".to_string(),
-                value: "blue".to_string(),
-            },
-
-        ],
-        AtRule: vec!["@media".to_string()],
-    };
-
+    let rules = parse_css()?;
     let location = Location { line: 1, column: 1 }; // dummy values for testing
 
-    let errors = lint_rules(&test_rule, &known_props, &known_values, &location);
+    let mut all_errors = Vec::new();
+    for rule in &rules {
+        let errors = lint_rules(rule, &known_props, &known_values, &location);
+        all_errors.extend(errors);
+    }
 
-    for error in errors {
+    for error in all_errors {
         println!(
             "[{}:{}] {}: {}",
-            location.line,
-            location.column,
-            error.property,
-            error.message
+            location.line, location.column, error.property, error.message
         );
     }
 
     Ok(())
 }
-
-

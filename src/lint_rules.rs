@@ -1,18 +1,19 @@
 use crate::error;
-use crate::error::{PrettystrictError};
-use crate::Rules::check_property::{check_at_rule, check_props, PropertyList, Rule};
-use crate::Rules::check_value::{check_value, ValueList};
-use crate::Rules::duplicate_declaration::{check_order, duplicate_declaration, shorthand_detection, Location};
-use crate::Rules::unit_check::unit_check;
+use crate::error::PrettystrictError;
+use crate::rules::check_property::{PropertyList, Rule, check_at_rule, check_props};
+use crate::rules::check_value::{ValueList, check_value};
+use crate::rules::duplicate_declaration::{
+    Location, check_order, duplicate_declaration, shorthand_detection,
+};
+use crate::rules::unit_check::unit_check;
 
 #[derive(Debug)]
-pub struct LintError{
+pub struct LintError {
     pub selector: String,
     pub property: String,
     pub message: String,
     pub kind: PrettystrictError,
 }
-
 
 pub fn lint_rules(
     rule: &Rule,
@@ -21,12 +22,15 @@ pub fn lint_rules(
     location: &Location,
 ) -> Vec<LintError> {
     fn convert(rule_errors: Vec<LintError>) -> Vec<LintError> {
-        rule_errors.into_iter().map(|re| LintError {
-            selector: re.selector,
-            property: re.property,
-            message: format!("{}", re.message),
-            kind: error::PrettystrictError::from(re.kind),
-        }).collect()
+        rule_errors
+            .into_iter()
+            .map(|re| LintError {
+                selector: re.selector,
+                property: re.property,
+                message: format!("{}", re.message),
+                kind: error::PrettystrictError::from(re.kind),
+            })
+            .collect()
     }
 
     let mut errors = Vec::new();
@@ -47,5 +51,3 @@ pub fn lint_rules(
 
     errors
 }
-
-

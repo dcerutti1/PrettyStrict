@@ -1,11 +1,11 @@
-use std::fs;
-use serde::{Deserialize};
-use crate::error::{PrettystrictError};
+use crate::error::PrettystrictError;
 use crate::lint_rules::LintError;
-use crate::Rules::check_property::Rule;
+use crate::rules::check_property::Rule;
+use serde::Deserialize;
+use std::fs;
 
-use std::collections::HashMap;
 use regex::Regex;
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 pub struct ValueList {
@@ -20,7 +20,6 @@ pub struct KeywordRule {
     ignores: Option<Vec<String>>,
 }
 
-
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum ValueRule {
@@ -29,11 +28,11 @@ pub enum ValueRule {
     },
     UnitRange {
         units: Vec<String>,
-        range: Range
+        range: Range,
     },
     KeywordGroup {
-        keywords: HashMap<String, KeywordRule>
-    }
+        keywords: HashMap<String, KeywordRule>,
+    },
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,8 +42,7 @@ pub struct Range {
 }
 
 pub fn load_known_values(path: &str) -> Result<ValueList, LintError> {
-    
-    let json_value = fs::read_to_string(path).map_err(|e| LintError{
+    let json_value = fs::read_to_string(path).map_err(|e| LintError {
         selector: "".into(),
         property: "".into(),
         message: e.to_string(),
@@ -88,15 +86,21 @@ pub fn check_value(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
                 });
 
                 match parsed {
-                    Some((num, unit)) if units.contains(&unit.to_string()) &&
-                        num >= range.min && num <= range.max => {
+                    Some((num, unit))
+                        if units.contains(&unit.to_string())
+                            && num >= range.min
+                            && num <= range.max =>
+                    {
                         // valid value
                     }
                     _ => {
                         errors.push(LintError {
                             selector: rule.selector.clone(),
                             property: property.clone(),
-                            message: format!("‘{}’ is not a valid unit/range for {}", value, property),
+                            message: format!(
+                                "‘{}’ is not a valid unit/range for {}",
+                                value, property
+                            ),
                             kind: PrettystrictError::UnknownValue(value.clone()),
                         });
                     }
@@ -106,7 +110,7 @@ pub fn check_value(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
             Some(ValueRule::KeywordGroup { keywords }) => {
                 if property == "position" {
                     if let Some(keyword_rule) = keywords.get(value) {
-                        if let Some(allowed) = &keyword_rule.allowed {
+                        if let Some(_allowed) = &keyword_rule.allowed {
                             // (Optional: validate something if needed
                         }
                     } else {
@@ -119,13 +123,16 @@ pub fn check_value(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
                     }
                 }
 
-                
-                let position_value = rule.declaration.iter()
+                let position_value = rule
+                    .declaration
+                    .iter()
                     .find(|d| d.name == "position")
                     .map(|d| d.value.as_str());
 
                 if let Some("static") = position_value {
-                    if let Some(ValueRule::KeywordGroup { keywords }) = known_values.properties.get("position") {
+                    if let Some(ValueRule::KeywordGroup { keywords }) =
+                        known_values.properties.get("position")
+                    {
                         if let Some(static_rule) = keywords.get("static") {
                             if let Some(ignores) = &static_rule.ignores {
                                 for decl in &rule.declaration {
@@ -133,7 +140,10 @@ pub fn check_value(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
                                         errors.push(LintError {
                                             selector: rule.selector.clone(),
                                             property: property.clone(),
-                                            message: format!("'{}' is not valid for static.", decl.name),
+                                            message: format!(
+                                                "'{}' is not valid for static.",
+                                                decl.name
+                                            ),
                                             kind: PrettystrictError::UnknownValue(value.clone()),
                                         });
                                     }

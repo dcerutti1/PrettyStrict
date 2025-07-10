@@ -1,10 +1,9 @@
-
 use crate::error::PrettystrictError;
 use crate::lint_rules::LintError;
-use crate::Rules::check_property::Rule;
-use regex::Regex;
+use crate::rules::check_property::Rule;
+use crate::rules::check_value::{ValueList, ValueRule};
 use lazy_static::lazy_static;
-use crate::Rules::check_value::{ValueList, ValueRule};
+use regex::Regex;
 
 pub fn unit_check(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
     lazy_static! {
@@ -17,7 +16,6 @@ pub fn unit_check(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
         let prop = decl.name.as_str();
         let value = decl.value.trim();
 
-       
         let unit_opt = UNIT_RE
             .captures(value)
             .and_then(|caps| caps.get(1))
@@ -30,7 +28,6 @@ pub fn unit_check(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
 
         let unit = unit_opt.unwrap();
 
-        
         match known_values.properties.get(prop) {
             Some(ValueRule::UnitRange { units, .. }) => {
                 if !units.contains(&unit.to_string()) {
@@ -47,7 +44,10 @@ pub fn unit_check(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
                 errors.push(LintError {
                     selector: rule.selector.clone(),
                     property: decl.name.clone(),
-                    message: format!("Unexpected unit '{}' for keyword-only property '{}'", unit, prop),
+                    message: format!(
+                        "Unexpected unit '{}' for keyword-only property '{}'",
+                        unit, prop
+                    ),
                     kind: PrettystrictError::WrongUnitDeclared,
                 });
             }
@@ -55,10 +55,13 @@ pub fn unit_check(rule: &Rule, known_values: &ValueList) -> Vec<LintError> {
                 errors.push(LintError {
                     selector: rule.selector.clone(),
                     property: decl.name.clone(),
-                    message: format!("Unknown property '{}' — no unit validation rule found", prop),
+                    message: format!(
+                        "Unknown property '{}' — no unit validation rule found",
+                        prop
+                    ),
                     kind: PrettystrictError::UnknownProperty(prop.to_string()),
                 });
-            },
+            }
             Some(&ValueRule::KeywordGroup { .. }) => {
                 eprintln!("invalid input")
             }

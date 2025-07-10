@@ -1,14 +1,13 @@
 //provides error for this program
 
+use crate::lint_rules::LintError;
+use cssparser::{BasicParseErrorKind, ParseError, ParseErrorKind};
 use fmt::Display;
 use std::fmt;
-use cssparser::{BasicParseErrorKind, ParseError, ParseErrorKind};
 use thiserror::Error;
-use crate::lint_rules::LintError;
 
 #[derive(Debug, Error)]
 pub enum PrettystrictError {
-    
     #[error("Unexpected token: {0}")]
     UnexpectedToken(String),
 
@@ -22,8 +21,8 @@ pub enum PrettystrictError {
     UnknownProperty(String),
 
     #[error("file error: {0}")]
-   IoError(#[from] std::io::Error),
-    
+    IoError(#[from] std::io::Error),
+
     #[error("json error: {0}")]
     JsonError(#[from] serde_json::Error),
 
@@ -32,17 +31,16 @@ pub enum PrettystrictError {
 
     #[error("file error")]
     DuplicateProperty,
-    
+
     #[error("no units have been declared")]
+    #[allow(dead_code)]
     NoUnitFound,
-    
+
     #[error("wrong unit has been declared")]
     WrongUnitDeclared,
 
     #[error("propery overridden ")]
     ProperyOverride,
-    
-    
 }
 
 impl<'i, E: Display> From<ParseError<'i, E>> for PrettystrictError {
@@ -55,9 +53,7 @@ impl<'i, E: Display> From<ParseError<'i, E>> for PrettystrictError {
                 BasicParseErrorKind::EndOfInput => PrettystrictError::EndOfFile,
                 other => PrettystrictError::Custom(format!("{:?}", other)),
             },
-            ParseErrorKind::Custom(e) => {
-                PrettystrictError::Custom(format!("{}", e))
-            }
+            ParseErrorKind::Custom(e) => PrettystrictError::Custom(format!("{}", e)),
         }
     }
 }

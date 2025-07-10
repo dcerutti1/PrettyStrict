@@ -1,11 +1,9 @@
+use crate::error::PrettystrictError;
+use crate::lint_rules::LintError;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io::{Read};
-use crate::error::{PrettystrictError};
-use crate::lint_rules::LintError;
 
 #[derive(Serialize, Deserialize)]
-
 pub struct Property {
     pub(crate) name: String,
     pub(crate) value: String,
@@ -14,7 +12,7 @@ pub struct Property {
 pub struct Rule {
     pub selector: String,
     pub declaration: Vec<Property>,
-    pub AtRule: Vec<String>,
+    pub at_rule: Vec<String>,
 }
 #[derive(Debug, Deserialize)]
 pub struct PropertyList {
@@ -23,14 +21,13 @@ pub struct PropertyList {
     pub at_rules: Vec<String>,
 }
 pub fn load_known_props(path: &str) -> Result<PropertyList, LintError> {
-    
-    let json_content = fs::read_to_string(path).map_err(|e| LintError{
+    let json_content = fs::read_to_string(path).map_err(|e| LintError {
         selector: "".into(),
         property: "".into(),
         message: e.to_string(),
         kind: PrettystrictError::IoError(e),
     })?;
-    let props: PropertyList = serde_json::from_str(&json_content).map_err(|e| LintError{
+    let props: PropertyList = serde_json::from_str(&json_content).map_err(|e| LintError {
         selector: "".into(),
         property: "".into(),
         message: e.to_string(),
@@ -44,7 +41,7 @@ pub fn check_props(rule: &Rule, known_props: &PropertyList) -> Vec<LintError> {
 
     for declaration in &rule.declaration {
         if !known_props.properties.contains(&declaration.name) {
-            errors.push(LintError{
+            errors.push(LintError {
                 selector: rule.selector.clone(),
                 property: declaration.name.clone(),
                 message: format!("{} is unknown", declaration.name),
@@ -52,14 +49,14 @@ pub fn check_props(rule: &Rule, known_props: &PropertyList) -> Vec<LintError> {
             });
         }
     }
-    
+
     errors
 }
 
 pub fn check_at_rule(rule: &Rule, known_props: &PropertyList) -> Vec<LintError> {
     let mut errors = Vec::new();
 
-    for at_rule in &rule.AtRule {
+    for at_rule in &rule.at_rule {
         let at_rule_with_at = if at_rule.starts_with('@') {
             at_rule.clone()
         } else {
@@ -78,8 +75,3 @@ pub fn check_at_rule(rule: &Rule, known_props: &PropertyList) -> Vec<LintError> 
 
     errors
 }
-
-
-
-
-
