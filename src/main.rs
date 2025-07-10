@@ -5,7 +5,7 @@ mod parse_css;
 mod rules;
 
 use crate::lint_rules::{LintError, lint_rules};
-use crate::parse_css::parse_css;
+
 use crate::rules::check_property::load_known_props;
 use crate::rules::check_value::load_known_values;
 use crate::rules::duplicate_declaration::Location;
@@ -32,7 +32,7 @@ fn main() -> Result<(), LintError> {
     let known_props = load_known_props("./src/CSS/Props.json")?;
     let known_values = load_known_values("./src/CSS/Values.json")?;
 
-    let rules = parse_css()?;
+    let rules = parse_css::parse_css_default()?;
     let location = Location { line: 1, column: 1 }; // dummy values for testing
 
     let mut all_errors = Vec::new();

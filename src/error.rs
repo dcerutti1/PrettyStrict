@@ -41,6 +41,9 @@ pub enum PrettystrictError {
 
     #[error("propery overridden ")]
     ProperyOverride,
+
+    #[error("parse error: {0}")]
+    ParseError(String),
 }
 
 impl<'i, E: Display> From<ParseError<'i, E>> for PrettystrictError {
