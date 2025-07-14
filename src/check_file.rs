@@ -1,5 +1,4 @@
 use crate::error::PrettystrictError;
-use cssparser::{Parser, ParserInput};
 use std::fs;
 use std::io::Read;
 
@@ -16,8 +15,7 @@ fn check(file: Option<String>, watch: bool) -> Result<(), PrettystrictError> {
         let mut contents = String::new();
         css_file.read_to_string(&mut contents)?;
 
-        let mut input = ParserInput::new(contents.as_str());
-        let _parser_output = Parser::new(&mut input);
+
 
         Ok(())
     }

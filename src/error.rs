@@ -1,9 +1,9 @@
 //provides error for this program
 
 use crate::lint_rules::LintError;
-use cssparser::{BasicParseErrorKind, ParseError, ParseErrorKind};
 use fmt::Display;
 use std::fmt;
+use lightningcss::error::ParserError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -41,22 +41,65 @@ pub enum PrettystrictError {
 
     #[error("propery overridden ")]
     ProperyOverride,
+    #[error("invalid declaration")]
+    InvalidDeclaration,
 
-    #[error("parse error: {0}")]
-    ParseError(String),
 }
 
-impl<'i, E: Display> From<ParseError<'i, E>> for PrettystrictError {
-    fn from(err: ParseError<'i, E>) -> Self {
-        match err.kind {
-            ParseErrorKind::Basic(kind) => match kind {
-                BasicParseErrorKind::UnexpectedToken(token) => {
-                    PrettystrictError::UnexpectedToken(format!("{:?}", token))
-                }
-                BasicParseErrorKind::EndOfInput => PrettystrictError::EndOfFile,
-                other => PrettystrictError::Custom(format!("{:?}", other)),
-            },
-            ParseErrorKind::Custom(e) => PrettystrictError::Custom(format!("{}", e)),
+impl From<ParserError<'_>> for PrettystrictError {
+    fn from(err: ParserError) -> Self {
+        match err {
+            ParserError::AtRuleBodyInvalid => {
+                PrettystrictError::Custom("invalid rule body".to_string())
+            }
+            ParserError::AtRulePreludeInvalid => {
+                PrettystrictError::Custom("invalid rule prelude".to_string())
+            }
+            ParserError::AtRuleInvalid(_) => {
+                PrettystrictError::Custom("invalid rule".to_string())
+            }
+            ParserError::EndOfInput => {
+                PrettystrictError::EndOfFile
+            }
+            ParserError::InvalidDeclaration => {
+                PrettystrictError::Custom("invalid declaration".to_string())
+            }
+            ParserError::InvalidMediaQuery => {
+                PrettystrictError::Custom("invalid media query".to_string())
+            }
+            ParserError::InvalidNesting => {
+                PrettystrictError::Custom("invalid nesting".to_string())
+            }
+            ParserError::DeprecatedNestRule => {
+                PrettystrictError::Custom("deprecated nesting rule".to_string())
+            }
+            ParserError::DeprecatedCssModulesValueRule => {
+                PrettystrictError::Custom("deprecated css-modules-value-rule".to_string())
+            }
+            ParserError::InvalidPageSelector => {
+                PrettystrictError::Custom("invalid page-selector".to_string())
+            }
+            ParserError::InvalidValue => {
+                PrettystrictError::Custom("invalid value".to_string())
+            }
+            ParserError::QualifiedRuleInvalid => {
+                PrettystrictError::Custom("qualified rule invalid".to_string())
+            }
+            ParserError::SelectorError(_) => {
+                PrettystrictError::Custom("invalid selector".to_string())
+            }
+            ParserError::UnexpectedImportRule => {
+                PrettystrictError::Custom("unexpected import rule".to_string())
+            }
+            ParserError::UnexpectedNamespaceRule => {
+                PrettystrictError::Custom("unexpected namespace rule".to_string())
+            }
+            ParserError::UnexpectedToken(_) => {
+                PrettystrictError::Custom("unexpected token".to_string())
+            }
+            ParserError::MaximumNestingDepth => {
+                PrettystrictError::Custom("maximum nesting depth".to_string())
+            }
         }
     }
 }

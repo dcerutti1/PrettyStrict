@@ -7,7 +7,6 @@ name = "PrettyStrict"
 version = "0.1.0"
 dependencies = [
  "clap",
- "cssparser 0.35.0",
  "lazy_static",
  "lightningcss",
  "regex",
@@ -286,25 +285,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "cssparser"
-version = "0.35.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e901edd733a1472f944a45116df3f846f54d37e67e68640ac8bb69689aca2aa"
-dependencies = [
- "cssparser-macros",
- "dtoa-short",
- "itoa",
- "phf",
- "smallvec",
-]
-
-[[package]]
 name = "cssparser-color"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "556c099a61d85989d7af52b692e35a8d68a57e7df8c6d07563dc0778b3960c9f"
 dependencies = [
- "cssparser 0.33.0",
+ "cssparser",
 ]
 
 [[package]]
@@ -491,7 +477,7 @@ dependencies = [
  "ahash 0.8.12",
  "bitflags",
  "const-str",
- "cssparser 0.33.0",
+ "cssparser",
  "cssparser-color",
  "dashmap",
  "data-encoding",
@@ -574,7 +560,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "54fd03f1ad26cb6b3ec1b7414fa78a3bd639e7dbb421b1a60513c96ce886a196"
 dependencies = [
  "bitflags",
- "cssparser 0.33.0",
+ "cssparser",
  "log",
  "phf",
  "phf_codegen",
